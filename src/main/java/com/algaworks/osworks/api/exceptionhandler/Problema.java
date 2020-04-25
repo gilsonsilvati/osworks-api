@@ -1,6 +1,6 @@
 package com.algaworks.osworks.api.exceptionhandler;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,27 +12,19 @@ import lombok.Setter;
 
 @JsonInclude(Include.NON_EMPTY)
 @AllArgsConstructor
+@Getter @Setter
 public class Problema {
 	
-	@Getter @Setter
 	private Integer status;
-	
-	@Getter @Setter
-	private LocalDateTime dataHora;
-	
-	@Getter @Setter
+	private OffsetDateTime dataHora;
 	private String titulo;
-	
-	@Getter @Setter
 	private List<Campo> campos;
 	
 	@AllArgsConstructor
+	@Getter @Setter
 	public static class Campo {
 		
-		@Getter @Setter
 		private String nome;
-		
-		@Getter @Setter
 		private String mensagem;
 		
 	}

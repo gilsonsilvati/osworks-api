@@ -1,6 +1,6 @@
 package com.algaworks.osworks.api.exceptionhandler;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.algaworks.osworks.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.osworks.domain.exception.NegocioException;
 
 @ControllerAdvice
@@ -25,10 +26,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@Autowired
 	private MessageSource messageSource;
 	
+	@ExceptionHandler(EntidadeNaoEncontradaException.class)
+	public ResponseEntity<Object> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex, WebRequest request) {
+		var status = HttpStatus.NOT_FOUND;
+		var problema = new Problema(status.value(), OffsetDateTime.now(), ex.getMessage(), new ArrayList<Problema.Campo>());
+		
+		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
+	}
+	
 	@ExceptionHandler(NegocioException.class)
 	public ResponseEntity<Object> handleNegocio(NegocioException ex, WebRequest request) {
 		var status = HttpStatus.BAD_REQUEST;
-		var problema = new Problema(status.value(), LocalDateTime.now(), ex.getMessage(), new ArrayList<Problema.Campo>());
+		var problema = new Problema(status.value(), OffsetDateTime.now(), ex.getMessage(), new ArrayList<Problema.Campo>());
 		
 		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
 	}
@@ -44,7 +53,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			campos.add(new Problema.Campo(nome, mensagem));
 		}
 		
-		var problema = new Problema(status.value(), LocalDateTime.now(), "Um ou mais campos estão inválidos. "
+		var problema = new Problema(status.value(), OffsetDateTime.now(), "Um ou mais campos estão inválidos. "
 				+ "Faça o preenchimento correto e tente novamente.", campos);
 		
 		return super.handleExceptionInternal(ex, problema, headers, status, request);
